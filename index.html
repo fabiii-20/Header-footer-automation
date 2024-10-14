@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footprint Fetcher</title>
+</head>
+<body>
+    <h1>Fetch Footprints</h1>
+    <textarea id="links" rows="10" cols="50" placeholder="Enter URLs, each on a new line"></textarea><br>
+    <button onclick="fetchFootprints()">Fetch Footprints</button>
+    <script>
+        async function fetchFootprints() {
+            const textarea = document.getElementById('links');
+            const links = textarea.value.split('\n').map(link => link.trim()).filter(link => link);
+            
+            if (links.length === 0) {
+                alert('Please enter at least one URL.');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:5000/fetch-footprint', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ links }),
+                });
+
+                // Handle response as a blob (binary data)
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'footprints.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            } catch (error) {
+                console.error('Error fetching footprints:', error);
+                alert('Error fetching footprints.');
+            }
+        }
+    </script>
+</body>
+</html>
